@@ -1,0 +1,24 @@
+{
+  "name": "rbtmq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --recursive"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^4.16.0",
+    "mocha": "^5.0.0",
+    "sinon": "^4.2.1"
+  },
+  "dependencies": {
+    "amqplib": "^0.5.2",
+    "bluebird": "^3.5.1"
+  }
+}
