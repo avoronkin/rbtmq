@@ -11,7 +11,6 @@ const config = {
                 {
                     name: 'test-queue',
                     pattern: 'path',
-                    prefetch: 5,
                     options: {
                         autoDelete: true
                     }
@@ -21,21 +20,18 @@ const config = {
     ]
 }
 
-it('consume message', async () => {
-    const mq = new Rbtmq()
-    await mq.connect().createChannel().bootstrap(config)
-    const data = {test: 'data'}
+await mq.bootstrap(config)
+const data = {test: 'data'}
 
-    const spy = sinon.spy(function (msg) {
-        mq.channel.ack(msg, false)
-    })
-
-    await mq.queue('test-queue').consume(spy)
-    await mq.exchange('test-exchange').publish('path', Buffer.from(JSON.stringify(data)))
-    await new Promise(resolve => setTimeout(resolve, 50))
-
-    assert.equal(spy.calledOnce, true)
-    assert.deepEqual(JSON.parse(spy.firstCall.args[0].content.toString()), data)
+const spy = sinon.spy(function (msg) {
+    assert.deepEqual(msg.body, data)
+    msg.ack(false)
 })
+
+await mq.queue('test-queue').consume(spy)
+await mq.exchange('test-exchange').publish('path', data)
+await new Promise(resolve => setTimeout(resolve, 50))
+
+assert.equal(spy.calledOnce, true)
 
 ```
