@@ -172,4 +172,7 @@ describe.only('bootstrap', () => {
 
     })
 
+
+    describe('bindings block', () => {})
+
 })

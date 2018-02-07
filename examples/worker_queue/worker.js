@@ -1,13 +1,12 @@
-const rbtmq = require('../../lib')
-
-// node ./examples/pubsub_topic/subscriber.js *.event.*
-// node ./examples/pubsub_topic/subscriber.js obj1.#
+const Rbtmq = require('../../lib')
+const exchangeName = 'test-worker-exchange'
+// node ./examples/worker_queue/worker.js cmnd.*
 
 async function subscribe (pattern = '#') {
-    const exchangeName = 'test-worker-exchange'
     const queueName = ['test-worker-queue', pattern].join('.')
+    const mq = new Rbtmq()
 
-    const mq = await rbtmq({
+    await mq.bootstrap({
         exchanges: [
             {
                 name: exchangeName,
@@ -19,7 +18,7 @@ async function subscribe (pattern = '#') {
                     {
                         name: queueName,
                         pattern,
-                        prefetch: 1,
+                        // prefetch: 1,
                         options: {
                             autoDelete: true
                         }
@@ -29,10 +28,10 @@ async function subscribe (pattern = '#') {
         ]
     })
 
-    await mq.consume(queueName, function (msg) {
+    await mq.queue(queueName).prefetch(1).consume(function (msg) {
         setTimeout(() => {
-            console.log('msg', msg.data, new Date())
-            this.ch.ack(msg)
+            console.log('msg', msg.body, new Date())
+            msg.ack()
         }, 1000)
     })
 }

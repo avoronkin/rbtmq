@@ -1,13 +1,13 @@
-const rbtmq = require('../../lib')
+const Rbtmq = require('../../lib')
+const exchangeName = 'test-pubsub-topic-exchange'
+const queueName = ['test-pubsub-topic-queue', Date.now()].join('.')
 
 // node ./examples/pubsub_topic/subscriber.js *.event.*
 // node ./examples/pubsub_topic/subscriber.js obj1.#
 
 async function subscribe (pattern = '#') {
-    const exchangeName = 'test-pubsub-topic-exchange'
-    const queueName = ['test-pubsub-topic-queue', Date.now()].join('.')
-
-    const mq = await rbtmq({
+    const mq = new Rbtmq()
+    await mq.bootstrap({
         exchanges: [
             {
                 name: exchangeName,
@@ -28,8 +28,8 @@ async function subscribe (pattern = '#') {
         ]
     })
 
-    await mq.consume(queueName, function (msg) {
-        console.log('msg', msg.data, new Date())
+    await mq.exchange(queueName).consume(function (msg) {
+        console.log('msg', msg.body, new Date())
     }, {
         noAck: true
     })

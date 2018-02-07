@@ -1,9 +1,10 @@
-const rbtmq = require('../../lib')
+const Rbtmq = require('../../lib')
+const queueName = ['test-pubsub-queue', Date.now()].join('.')
 
 async function subscriber () {
-    const queueName = ['test-pubsub-queue', Date.now()].join('.')
+    const mq = new Rbtmq()
 
-    const mq = await rbtmq({
+    await mq.bootstrap({
         exchanges: [
             {
                 name: 'test-pubsub-exchange',
@@ -23,8 +24,8 @@ async function subscriber () {
         ]
     })
 
-    await mq.consume(queueName, function (msg) {
-        console.log('msg', msg.data, new Date())
+    await mq.exchange(queueName).consume(function (msg) {
+        console.log('msg', msg.body, new Date())
     }, {
         noAck: true
     })

@@ -1,10 +1,12 @@
-const rbtmq = require('../../lib')
+const Rbtmq = require('../../lib')
+const exchangeName = 'test-req-res-exchange'
+const resQueueName = 'test-res-queue'
+// node ./examples/req_res/client.js
 
 async function client () {
-    const exchangeName = 'test-req-res-exchange'
-    const resQueueName = 'test-res-queue'
+    const mq = new Rbtmq()
 
-    const mq = await rbtmq({
+    await mq.bootstrap({
         exchanges: [
             {
                 name: exchangeName,
@@ -25,13 +27,14 @@ async function client () {
         ]
     })
 
-    await mq.publish(exchangeName, 'resource.create.request', {obj: 1, key: 'value1', date: new Date()}, {
-        persistent: true
+
+    await mq.queue(resQueueName).consume(function (msg) {
+        console.log('res', msg.body, new Date())
+        msg.ack()
     })
 
-    await mq.consume(resQueueName, function (msg) {
-        console.log('res', msg.data, new Date())
-        this.ch.ack(msg)
+    await mq.exchange(exchangeName).publish('resource.create.request', {obj: 1, key: 'value1', date: new Date()}, {
+        persistent: true
     })
 }
 
