@@ -1,7 +1,7 @@
 {
     "name": "rbtmq",
-    "version": "1.0.0",
-    "description": "An easy to use AMQP client with fluent api",
+    "version": "2.0.0",
+    "description": "AMQP client",
     "keywords": [
         "amqp",
         "amqplib",
