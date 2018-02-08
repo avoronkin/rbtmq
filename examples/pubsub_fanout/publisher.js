@@ -2,7 +2,7 @@ const Rbtmq = require('../../lib')
 
 async function publisher () {
     const mq = new Rbtmq()
-    await mq.bootstrap({
+    await mq.boot({
         exchanges: [
             {
                 name: 'test-pubsub-exchange',
@@ -11,12 +11,18 @@ async function publisher () {
                     autoDelete: true
                 },
             }
-        ]
+        ],
+        publishers: [
+            {
+                name: 'publisher1',
+                exchange: 'test-pubsub-exchange',
+                routingKey: ''
+            }
+        ],
     })
 
-    await mq.exchange('test-pubsub-exchange')
-        .publish('', {key: 'value1', date: new Date()})
-        .publish('', {key: 'value2', date: new Date()})
+    await mq.pub('test-pubsub-exchange', '', {key: 'value1', date: new Date()})
+    await mq.pub('test-pubsub-exchange', '', {key: 'value2', date: new Date()})
 
     await new Promise(resolve => setTimeout(resolve, 100))
     await mq.connection.close()

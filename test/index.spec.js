@@ -37,7 +37,7 @@ describe('rbtmq', () => {
             ]
         }
 
-        await mq.bootstrap(config)
+        await mq.boot(config)
         const data = {test: 'data'}
 
         const spy = sinon.spy(function (msg) {
@@ -45,8 +45,8 @@ describe('rbtmq', () => {
             msg.ack(false)
         })
 
-        await mq.queue('test-queue').consume(spy)
-        await mq.exchange('test-exchange').publish('path', data)
+        await mq.sub('test-queue', spy)
+        await mq.pub('test-exchange', 'path', data)
         await new Promise(resolve => setTimeout(resolve, 50))
 
         assert.equal(spy.calledOnce, true)

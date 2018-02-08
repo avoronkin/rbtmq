@@ -4,7 +4,7 @@ const queueName = ['test-pubsub-queue', Date.now()].join('.')
 async function subscriber () {
     const mq = new Rbtmq()
 
-    await mq.bootstrap({
+    await mq.boot({
         exchanges: [
             {
                 name: 'test-pubsub-exchange',
@@ -21,13 +21,22 @@ async function subscriber () {
                     }
                 ]
             }
+        ],
+        consumers: [
+            {
+                name: 'consumer1',
+                queue: queueName,
+                options: {
+                    noAsk: true
+                }
+            },
         ]
     })
 
-    await mq.exchange(queueName).consume(function (msg) {
+    await mq.sub(queueName, function (msg) {
         console.log('msg', msg.body, new Date())
     }, {
-        noAck: true
+        noAsk: true
     })
 }
 

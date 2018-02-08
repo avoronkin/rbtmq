@@ -1,4 +1,6 @@
 ```js
+const mq = new Rbtmq()
+
 const config = {
     exchanges: [
         {
@@ -19,19 +21,15 @@ const config = {
         }
     ]
 }
-
-await mq.bootstrap(config)
 const data = {test: 'data'}
-
 const spy = sinon.spy(function (msg) {
     assert.deepEqual(msg.body, data)
     msg.ack(false)
 })
 
-await mq.queue('test-queue').consume(spy)
-await mq.exchange('test-exchange').publish('path', data)
-await new Promise(resolve => setTimeout(resolve, 50))
+await mq.boot(config)
 
-assert.equal(spy.calledOnce, true)
+await mq.sub('test-queue', spy)
+await mq.pub('test-exchange', 'path', data)
 
 ```

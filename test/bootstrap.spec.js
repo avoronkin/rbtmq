@@ -21,7 +21,7 @@ describe.only('bootstrap', () => {
             const channel = await mq.channel()
             sinon.stub(channel, 'assertExchange').resolves()
 
-            await mq.bootstrap({
+            await mq.boot({
                 exchanges: [
                     {
                         name: 'test-exchange1',
@@ -53,7 +53,7 @@ describe.only('bootstrap', () => {
                 .onSecondCall().resolves({queue: 'test-queue2'})
             sinon.stub(channel, 'bindQueue').resolves()
 
-            await mq.bootstrap({
+            await mq.boot({
                 exchanges: [
                     {
                         name: 'test-exchange1',
@@ -116,7 +116,7 @@ describe.only('bootstrap', () => {
                 .onSecondCall().resolves({queue: 'test-queue2'})
             sinon.stub(channel, 'bindQueue').resolves()
 
-            await mq.bootstrap({
+            await mq.boot({
                 exchanges: [
                     {
                         name: 'test-exchange1',
@@ -174,5 +174,52 @@ describe.only('bootstrap', () => {
 
 
     describe('bindings block', () => {})
+
+    describe('publishers block', () => {
+        it('woork', async () => {
+
+            await mq.boot({
+                exchanges: [
+                    {
+                        name: 'test-exchange1',
+                        type: 'topic',
+                        options: {
+                            autoDelete: true
+                        },
+                        queues: [
+                            {
+                                name: 'test-queue1',
+                                pattern: 'foo.*',
+                                options: {
+                                    autoDelete: true
+                                }
+                            }
+                        ]
+                    },
+                ],
+            })
+
+            await mq.sub('test-queue1', function (msg) {
+                console.log('consumer1', msg.body)
+                msg.ack()
+            }, {
+                prefetch: 1
+            })
+            await mq.sub('test-queue1', function (msg) {
+                console.log('consumer2', msg.body)
+                msg.ack()
+            }, {
+                prefetch: 2
+            })
+
+            await mq.pub('test-exchange1', 'foo.bar', {test: 'msg1', from: 'publisher1'})
+            await mq.pub('test-exchange1',  'foo.baz', {test: 'msg2', from: 'publisher2'})
+            await mq.pub('test-exchange1', 'foo.bar', {test: 'msg1', from: 'publisher1'})
+            await mq.pub('test-exchange1',  'foo.baz', {test: 'msg2', from: 'publisher2'})
+
+            await new Promise(resolve => setTimeout(resolve, 100))
+        })
+
+    })
 
 })

@@ -6,7 +6,7 @@ const reqQueueName = 'test-req-queue'
 async function server () {
     const mq = new Rbtmq()
 
-    await mq.bootstrap({
+    await mq.boot({
         exchanges: [
             {
                 name: exchangeName,
@@ -27,10 +27,10 @@ async function server () {
         ]
     })
 
-    await mq.queue(reqQueueName).consume(async function (msg) {
+    await mq.sub(reqQueueName, async function (msg) {
         msg.ack()
         console.log('req', msg.body, new Date())
-        await mq.exchange(exchangeName).publish('resource.create.responce', {
+        await mq.pub(exchangeName, 'resource.create.responce', {
             responce: true,
             obj: 1,
             key: 'value1',

@@ -6,7 +6,7 @@ async function subscribe (pattern = '#') {
     const queueName = ['test-worker-queue', pattern].join('.')
     const mq = new Rbtmq()
 
-    await mq.bootstrap({
+    await mq.boot({
         exchanges: [
             {
                 name: exchangeName,
@@ -18,7 +18,6 @@ async function subscribe (pattern = '#') {
                     {
                         name: queueName,
                         pattern,
-                        // prefetch: 1,
                         options: {
                             autoDelete: true
                         }
@@ -28,11 +27,13 @@ async function subscribe (pattern = '#') {
         ]
     })
 
-    await mq.queue(queueName).prefetch(1).consume(function (msg) {
+    await mq.sub(queueName, function (msg) {
         setTimeout(() => {
             console.log('msg', msg.body, new Date())
             msg.ack()
         }, 1000)
+    }, {
+        prefetch: 1
     })
 }
 

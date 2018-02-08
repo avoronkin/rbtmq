@@ -1,11 +1,11 @@
 const Rbtmq = require('../../lib')
 const exchangeName = 'test-worker-exchange'
-// node ./examples/worker_queue/manager.js 
+// node ./examples/worker_queue/manager.js
 
 async function manager () {
     const mq = new Rbtmq()
 
-    await mq.bootstrap({
+    await mq.boot({
         exchanges: [
             {
                 name: exchangeName,
@@ -17,10 +17,10 @@ async function manager () {
         ]
     })
 
-    await mq.exchange(exchangeName).publish('cmnd.name1', {obj: 1, key: 'value1', date: new Date()}, {
+    await mq.pub(exchangeName, 'cmnd.name1', {obj: 1, key: 'value1', date: new Date()}, {
         persistent: true
     })
-    await mq.exchange(exchangeName).publish('cmnd.name2', {obj: 2, key: 'value2', date: new Date()}, {
+    await mq.pub(exchangeName, 'cmnd.name2', {obj: 2, key: 'value2', date: new Date()}, {
         persistent: true
     })
 
